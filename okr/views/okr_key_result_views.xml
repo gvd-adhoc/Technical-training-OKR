@@ -19,4 +19,24 @@
             </list>
         </field>
     </record>
+
+    <record id="okr_key_result_form_view" model="ir.ui.view">
+        <field name="name">okr.key.result.form</field>
+        <field name="model">okr.key_result</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="objective_id"/>
+                        <field name="description"/>
+                        <field name="state"/>
+                        <field name="in_charge_id"/>
+                        <field name="result"/>
+                        <field name="target"/>
+                        <field name="weight"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
 </odoo>

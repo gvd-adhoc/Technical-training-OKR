@@ -22,8 +22,8 @@ class OKRObjective(models.Model):
         default="q1",
     )
     in_charge_id = fields.Many2one("res.users", string="In Charge")
-    start_date = fields.Date(string="Start Date")
-    end_date = fields.Date(string="End Date")
+    start_date = fields.Date(string="Start Date", readonly=True)
+    end_date = fields.Date(string="End Date", readonly=True)
     type = fields.Selection(
         [
             ("committed", "Committed"),

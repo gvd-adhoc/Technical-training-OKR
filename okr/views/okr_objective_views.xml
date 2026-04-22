@@ -19,4 +19,38 @@
             </list>
         </field>
     </record>
+
+    <record id="okr_objective_form_view" model="ir.ui.view">
+        <field name="name">okr.objective.form</field>
+        <field name="model">okr.objective</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="okr_id"/>
+                        <field name="description"/>
+                        <field name="type"/>
+                        <field name="in_charge_id"/>
+                        <field name="cadence"/>
+                        <field name="result"/>
+                        <field name="start_date"/>
+                        <field name="end_date"/>
+                    </group>
+                    <notebook>
+                        <page string="Key Results">
+                            <field name="key_result_ids">
+                                <list>
+                                    <field name="description"/>
+                                    <field name="in_charge_id"/>
+                                    <field name="result"/>
+                                    <field name="target"/>
+                                    <field name="weight"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
 </odoo>
