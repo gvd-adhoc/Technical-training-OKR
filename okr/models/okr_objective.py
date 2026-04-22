@@ -36,7 +36,6 @@ class OKRObjective(models.Model):
     result = fields.Float(
         string="Result",
         compute="_compute_result",
-        digits=(16, 2),
     )
 
     @api.depends("key_result_ids.result")
@@ -48,9 +47,8 @@ class OKRObjective(models.Model):
                     (key_result.result / key_result.target) * key_result.weight
                     for key_result in objective.key_result_ids
                 )
-                objective.result = (
-                    total_result
-                    / sum(key_result.weight for key_result in objective.key_result_ids)
-                ) * 100
+                objective.result = total_result / sum(
+                    key_result.weight for key_result in objective.key_result_ids
+                )
             else:
                 objective.result = 0.0

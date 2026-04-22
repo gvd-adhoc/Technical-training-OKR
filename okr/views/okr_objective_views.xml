@@ -34,7 +34,7 @@
                         <field name="type"/>
                         <field name="in_charge_id"/>
                         <field name="cadence"/>
-                        <field name="result"/>
+                        <field name="result" widget="percentage"/>
                         <field name="start_date"/>
                         <field name="end_date"/>
                     </group>
@@ -44,9 +44,9 @@
                                 <list>
                                     <field name="description"/>
                                     <field name="in_charge_id"/>
-                                    <field name="result"/>
-                                    <field name="target"/>
-                                    <field name="weight"/>
+                                    <field name="result" widget="percentage"/>
+                                    <field name="target" widget="percentage"/>
+                                    <field name="weight" widget="percentage"/>
                                 </list>
                             </field>
                         </page>

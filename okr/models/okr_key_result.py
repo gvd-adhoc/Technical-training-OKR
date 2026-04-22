@@ -10,9 +10,9 @@ class OKRKeyResult(models.Model):
     name = fields.Char(string="Name", required=True)
     description = fields.Text(string="Description", required=True)
     objective_id = fields.Many2one("okr.objective", string="Objective", required=True)
-    result = fields.Float(string="Result", digits=(16, 2), default=0.0)
-    target = fields.Float(string="Target", digits=(16, 2), default=100.0)
-    weight = fields.Float(string="Weight", digits=(16, 2), default=0.0)
+    result = fields.Float(string="Result", default=0)
+    target = fields.Float(string="Target", default=1)
+    weight = fields.Float(string="Weight", default=0)
     in_charge_id = fields.Many2one("res.users", string="In Charge")
     state = fields.Selection(
         [
@@ -26,7 +26,7 @@ class OKRKeyResult(models.Model):
     )
 
     _check_target = models.Constraint(
-        "CHECK(target >= 0 and target <= 100)",
+        "CHECK(target >= 0 and target <= 1)",
         "Target must be between 0 and 100.",
     )
 
@@ -37,10 +37,10 @@ class OKRKeyResult(models.Model):
         )
         total_weight = sum(kr.weight for kr in key_results)
         for vals in vals_list:
-            if vals.get("target") < 0 or vals.get("target") > 100:
+            if vals.get("target") < 0 or vals.get("target") > 1:
                 raise ValidationError("Key result target must be between 0 and 100.")
             total_weight += vals.get("weight")
-            if total_weight > 100:
+            if total_weight > 1:
                 raise ValidationError(
                     "Total weight of key results for an objective cannot exceed 100%."
                 )
