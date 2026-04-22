@@ -1,4 +1,4 @@
-from odoo import fields, models
+from odoo import api, fields, models
 
 
 class OKRObjective(models.Model):
@@ -35,6 +35,22 @@ class OKRObjective(models.Model):
     )
     result = fields.Float(
         string="Result",
-        readonly=True,
+        compute="_compute_result",
         digits=(16, 2),
     )
+
+    @api.depends("key_result_ids.result")
+    def _compute_result(self):
+        for objective in self:
+            if objective.key_result_ids:
+                # Se calcula la media ponderada de los resultados de los key results respecto al peso que representan sobre el total de peso de los key results del objetivo
+                total_result = sum(
+                    (key_result.result / key_result.target) * key_result.weight
+                    for key_result in objective.key_result_ids
+                )
+                objective.result = (
+                    total_result
+                    / sum(key_result.weight for key_result in objective.key_result_ids)
+                ) * 100
+            else:
+                objective.result = 0.0

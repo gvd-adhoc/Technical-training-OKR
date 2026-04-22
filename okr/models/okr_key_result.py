@@ -10,11 +10,7 @@ class OKRKeyResult(models.Model):
     name = fields.Char(string="Name", required=True)
     description = fields.Text(string="Description", required=True)
     objective_id = fields.Many2one("okr.objective", string="Objective", required=True)
-    result = fields.Float(
-        string="Result",
-        digits=(16, 2),
-        readonly=True,
-    )
+    result = fields.Float(string="Result", digits=(16, 2), default=0.0)
     target = fields.Float(string="Target", digits=(16, 2), default=100.0)
     weight = fields.Float(string="Weight", digits=(16, 2), default=0.0)
     in_charge_id = fields.Many2one("res.users", string="In Charge")
