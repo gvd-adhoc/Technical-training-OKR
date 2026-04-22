@@ -1,0 +1,39 @@
+from odoo import fields, models
+
+
+class OKRObjective(models.Model):
+    _name = "okr.objective"
+    _description = "OKR Objective"
+
+    description = fields.Text(string="Description", required=True)
+    okr_id = fields.Many2one("okr", string="OKR", required=True)
+    key_result_ids = fields.One2many(
+        "okr.key_result", "objective_id", string="Key Results"
+    )
+    cadence = fields.Selection(
+        [
+            ("q1", "Quarterly Q1"),
+            ("q2", "Quarterly Q2"),
+            ("q3", "Quarterly Q3"),
+            ("q4", "Quarterly Q4"),
+            ("yearly", "Yearly"),
+        ],
+        string="Cadence",
+        default="q1",
+    )
+    in_charge_id = fields.Many2one("res.users", string="In Charge")
+    start_date = fields.Date(compute="_compute_period", string="Start Date")
+    end_date = fields.Date(compute="_compute_period", string="End Date")
+    type = fields.Selection(
+        [
+            ("committed", "Committed"),
+            ("aspirational", "Aspirational"),
+        ],
+        string="Type",
+        required=True,
+    )
+    result = fields.Float(
+        string="Result",
+        readonly=True,
+        digits=(16, 2),
+    )
