@@ -7,6 +7,8 @@
     "data": [
         "security/ir.model.access.csv",
         "views/okr_views.xml",
+        "views/okr_key_result_views.xml",
+        "views/okr_objective_views.xml",
         "views/okr_menus.xml",
     ],
     "installable": True,

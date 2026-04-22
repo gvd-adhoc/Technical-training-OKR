@@ -1,5 +1,7 @@
 <odoo>
     <menuitem id="menu_okr_root" name="OKR">
         <menuitem id="menu_okr" name="OKR" action="okr_action"/>
+        <menuitem id="menu_okr_objectives" name="Objectives" action="okr_objective_action"/>
+        <menuitem id="menu_okr_key_results" name="Key Results" action="okr_key_result_action"/>
     </menuitem>
 </odoo>
