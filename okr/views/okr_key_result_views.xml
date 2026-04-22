@@ -11,6 +11,7 @@
         <field name="arch" type="xml">
             <list>
                 <field name="objective_id"/>
+                <field name="name"/>
                 <field name="description"/>
                 <field name="in_charge_id"/>
                 <field name="result"/>
@@ -28,6 +29,7 @@
                 <sheet>
                     <group>
                         <field name="objective_id"/>
+                        <field name="name"/>
                         <field name="description"/>
                         <field name="state"/>
                         <field name="in_charge_id"/>

@@ -5,6 +5,7 @@ class Okr(models.Model):
     _name = "okr"
     _description = "OKR"
 
+    name = fields.Char(string="Name", required=True)
     title = fields.Char(string="Title", required=True)
     objective_ids = fields.One2many("okr.objective", "okr_id", string="Objectives")
     level = fields.Selection(

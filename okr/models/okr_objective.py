@@ -5,6 +5,7 @@ class OKRObjective(models.Model):
     _name = "okr.objective"
     _description = "OKR Objective"
 
+    name = fields.Char(string="Name", required=True)
     description = fields.Text(string="Description", required=True)
     okr_id = fields.Many2one("okr", string="OKR", required=True)
     key_result_ids = fields.One2many(
