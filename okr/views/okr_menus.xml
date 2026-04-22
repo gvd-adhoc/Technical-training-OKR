@@ -1,0 +1,5 @@
+<odoo>
+    <menuitem id="menu_okr_root" name="OKR">
+        <menuitem id="menu_okr" name="OKR" action="okr_action"/>
+    </menuitem>
+</odoo>

@@ -28,7 +28,7 @@ class Okr(models.Model):
         default="yearly",
     )
     in_charge_id = fields.Many2one("res.users", string="In Charge")
-    start_date = fields.Date(compute="_compute_period", string="Start Date")
-    end_date = fields.Date(compute="_compute_period", string="End Date")
+    start_date = fields.Date(string="Start Date")
+    end_date = fields.Date(string="End Date")
     parent_id = fields.Many2one("okr", string="Parent OKR")
     child_ids = fields.One2many("okr", "parent_id", string="Child OKRs")

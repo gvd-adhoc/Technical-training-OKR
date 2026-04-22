@@ -1,0 +1,21 @@
+<odoo>
+    <record id="okr_action" model="ir.actions.act_window">
+        <field name="name">OKR</field>
+        <field name="res_model">okr</field>
+        <field name="view_mode">list,form,kanban</field>
+    </record>
+
+    <record id="okr_list_view" model="ir.ui.view">
+        <field name="name">okr.list</field>
+        <field name="model">okr</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="title"/>
+                <field name="level"/>
+                <field name="in_charge_id"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+            </list>
+        </field>
+    </record>
+</odoo>

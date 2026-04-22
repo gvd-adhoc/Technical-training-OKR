@@ -1,0 +1,4 @@
+id,name,model_id/id,group_id/id,perm_read,perm_write,perm_create,perm_unlink
+access_okr,access_okr,model_okr,,1,1,1,1
+access_okr_objective,access_okr_objective,model_okr_objective,,1,1,1,1
+access_okr_key_result,access_okr_key_result,model_okr_key_result,,1,1,1,1
