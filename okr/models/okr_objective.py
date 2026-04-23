@@ -10,7 +10,7 @@ class OKRObjective(models.Model):
 
     name = fields.Char(string="Name", required=True)
     description = fields.Text(string="Description", required=True)
-    okr_id = fields.Many2one("okr", string="OKR", required=True)
+    okr_id = fields.Many2one("okr", string="OKR", default=False)
     key_result_ids = fields.One2many(
         "okr.key_result", "objective_id", string="Key Results"
     )
@@ -43,21 +43,30 @@ class OKRObjective(models.Model):
 
     @api.depends("key_result_ids.result")
     def _compute_result(self):
+        """
+        Compute the result of the objective based on its key results.
+        The result is calculated as the weighted average of the results of the active key results."""
         for objective in self:
             if objective.key_result_ids:
                 # Se calcula la media ponderada de los resultados de los key results respecto al peso que representan sobre el total de peso de los key results del objetivo
                 active_kr = objective.key_result_ids.filtered(
                     lambda kr: kr.state == "active"
                 )
-                total_result = sum(
-                    (kr.result / kr.target) * kr.weight for kr in active_kr
-                )
-                objective.result = total_result / sum(kr.weight for kr in active_kr)
+                if active_kr:
+                    total_result = sum(
+                        (kr.result / kr.target) * kr.weight for kr in active_kr
+                    )
+                    objective.result = total_result / sum(kr.weight for kr in active_kr)
+                else:
+                    objective.result = 0.0
             else:
                 objective.result = 0.0
 
     @api.depends("cadence")
     def _compute_period(self):
+        """
+        Compute the start and end dates based on the cadence.
+        """
         today = fields.Date.today()
         current_month = today.month
         next_year = today.replace(year=today.year + 1)
@@ -95,6 +104,12 @@ class OKRObjective(models.Model):
 
     @api.constrains("cadence")
     def _check_cadence(self):
+        """
+        Check that the cadence of the objective matches the cadence of its OKR.
+        Raises:
+            ValidationError: If an objective with yearly cadence is linked to an OKR with a different cadence.
+            ValidationError: If an objective with quarterly cadence is linked to an OKR with a different cadence.
+        """
         for objective in self:
             okr_cadence = objective.okr_id.cadence
             if objective.cadence == "yearly" and okr_cadence != "yearly":
@@ -111,6 +126,9 @@ class OKRObjective(models.Model):
                 )
 
     def _cron_close_finished_objectives(self):
+        """
+        Close finished objectives based on their end date.
+        """
         today = fields.Date.today()
 
         # Buscar los objetivos que han finalizado su periodo
@@ -119,3 +137,14 @@ class OKRObjective(models.Model):
         # Pasar a finalizado los key results de esos objetivos
         for obj in objectives:
             obj.key_result_ids.write({"state": "done"})
+
+    @api.ondelete(at_uninstall=False)
+    def _on_delete(self):
+        """
+        Handle the deletion of objectives by unlinking related key results.
+        """
+        for objective in self:
+            if objective.key_result_ids:
+                for kr in objective.key_result_ids:
+                    kr.objective_id = False
+                    kr.state = "cancelled"

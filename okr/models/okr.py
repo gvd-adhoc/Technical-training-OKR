@@ -39,6 +39,9 @@ class Okr(models.Model):
 
     @api.depends("cadence")
     def _compute_period(self):
+        """
+        Compute the start and end dates based on the cadence.
+        """
         today = fields.Date.today()
         current_month = today.month
 
@@ -69,8 +72,78 @@ class Okr(models.Model):
 
     @api.constrains("cadence")
     def _check_cadence(self):
+        """Check that the cadence of the OKR matches the cadence of its objectives, parent OKR, and child OKRs.
+        Raises:
+            ValidationError: If an OKR with quarterly cadence is linked to an objective with a different cadence.
+            ValidationError: If an OKR with quarterly cadence is linked to a parent OKR with a different cadence.
+            ValidationError: If an OKR with quarterly cadence is linked to a child OKR with a different cadence.
+            ValidationError: If an OKR with yearly cadence is linked to a parent OKR with a different cadence.
+        """
         for okr in self:
-            if okr.cadence != "yearly" and okr.cadence != okr.objective_ids.cadence:
+            if okr.cadence != "yearly":
+                if okr.objective_ids and any(
+                    okr.cadence != obj.cadence for obj in okr.objective_ids
+                ):
+                    raise ValidationError(
+                        "An OKR with quarterly cadence cannot be linked to an objective with a different cadence."
+                    )
+
+                if (
+                    okr.parent_id
+                    and okr.parent_id.cadence != "yearly"
+                    and okr.parent_id.cadence != okr.cadence
+                ):
+                    raise ValidationError(
+                        "An OKR cannot have a different quarterly cadence than its parent OKR."
+                    )
+
+                if okr.child_ids and any(
+                    okr.cadence != child.cadence for child in okr.child_ids
+                ):
+                    raise ValidationError(
+                        "An OKR cannot have a different quarterly cadence than its child OKRs."
+                    )
+            else:
+                if okr.parent_id and okr.parent_id.cadence != "yearly":
+                    raise ValidationError(
+                        "An OKR with yearly cadence cannot have a parent OKR with a different cadence."
+                    )
+
+    @api.constrains("child_ids")
+    def _check_child_parent(self):
+        """
+        Check that there are no recursive relationships between parent and child OKRs and that child OKRs have valid start and end dates.
+        Raises:
+            ValidationError: If a recursive relationship is detected.
+            ValidationError: If a child OKR has a start date earlier than its parent OKR.
+            ValidationError: If a child OKR has an end date later than its parent OKR
+        """
+        for okr in self:
+            parent = okr.parent_id
+            while parent:
+                if parent in okr.child_ids:
+                    raise ValidationError(
+                        "Recursive OKR relationships are not allowed."
+                    )
+                parent = parent.parent_id or False
+            if any(child.start_date < okr.start_date for child in okr.child_ids):
                 raise ValidationError(
-                    "An OKR with quarterly cadence cannot be linked to an objective with a different cadence."
+                    "Child OKRs cannot have a start date earlier than their parent OKR."
                 )
+            if any(child.end_date > okr.end_date for child in okr.child_ids):
+                raise ValidationError(
+                    "Child OKRs cannot have an end date later than their parent OKR."
+                )
+
+    @api.ondelete(at_uninstall=False)
+    def _on_delete(self):
+        """
+        Handle the deletion of OKRs by unlinking related objectives and child OKRs.
+        """
+        for okr in self:
+            if okr.objective_ids:
+                for objective in okr.objective_ids:
+                    objective.okr_id = False
+            if okr.child_ids:
+                for child in okr.child_ids:
+                    child.parent_id = False

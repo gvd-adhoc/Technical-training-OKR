@@ -9,7 +9,7 @@ class OKRKeyResult(models.Model):
 
     name = fields.Char(string="Name", required=True)
     description = fields.Text(string="Description", required=True)
-    objective_id = fields.Many2one("okr.objective", string="Objective", required=True)
+    objective_id = fields.Many2one("okr.objective", string="Objective", default=False)
     result = fields.Float(string="Result", default=0)
     target = fields.Float(string="Target", default=1)
     weight = fields.Float(string="Weight", default=0)
@@ -30,9 +30,14 @@ class OKRKeyResult(models.Model):
         "Target must be between 0 and 100.",
     )
 
-    _check_result = models.Constraint(
+    _check_valid_result = models.Constraint(
         "CHECK(result >= 0 and result <= 1)",
         "Result must be between 0 and 100.",
+    )
+
+    _check_result_vs_target = models.Constraint(
+        "CHECK(result <= target)",
+        "Result cannot exceed the target.",
     )
 
     @api.constrains("weight")

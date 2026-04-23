@@ -35,29 +35,18 @@
                         <field name="name"/>
                         <field name="level"/>
                         <field name="cadence"/>
+                        <field name="child_ids" widget="many2many_tags" domain="[('id', '!=', id)]"/>
                         <field name="in_charge_id"/>
                         <field name="start_date"/>
                         <field name="end_date"/>
                     </group>
                     <notebook>
-                        <page string="Child OKRs">
-                            <field name="child_ids">
-                                <list>
-                                    <field name="title"/>
-                                    <field name="name"/>
-                                    <field name="level"/>
-                                    <field name="in_charge_id"/>
-                                    <field name="start_date"/>
-                                    <field name="end_date"/>
-                                </list>
-                            </field>
-                        </page>
-                        <page string="Objectives">
+                        <page string="Objectives" invisible="not id">
                             <field name="objective_ids">
                                 <list>
                                     <field name="description"/>
                                     <field name="in_charge_id"/>
-                                    <field name="result"/>
+                                    <field name="result" widget="percentage"/>
                                     <field name="cadence"/>
                                     <field name="start_date"/>
                                     <field name="end_date"/>

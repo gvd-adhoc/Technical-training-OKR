@@ -39,7 +39,7 @@
                         <field name="end_date"/>
                     </group>
                     <notebook>
-                        <page string="Key Results">
+                        <page string="Key Results" invisible="not id">
                             <field name="key_result_ids">
                                 <list>
                                     <field name="description"/>

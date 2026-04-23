@@ -26,6 +26,7 @@
         <field name="model">okr.key_result</field>
         <field name="arch" type="xml">
             <form>
+                <field name="state" invisible="True"/>
                 <header>
                     <button name="set_active" type="object" string="Activate" invisible="state!='draft' and state!='cancelled'" class="btn-primary"/>
                     <button name="set_cancelled" type="object" string="Cancel" invisible="state!='draft' and state!='active'" class="btn-danger"/>
@@ -36,16 +37,19 @@
                     <widget name="web_ribbon" title="Done" bg_color="text-bg-info" invisible="state!='done'"/>
                     <widget name="web_ribbon" title="Cancelled" bg_color="text-bg-danger" invisible="state!='cancelled'"/>
                     <group>
-                        <field name="objective_id"/>
-                        <field name="name"/>
-                        <field name="description"/>
-                        <field name="state"/>
-                    </group>
-                    <group>
-                        <field name="in_charge_id"/>
-                        <field name="result" widget="percentage"/>
-                        <field name="target" widget="percentage"/>
-                        <field name="weight" widget="percentage"/>
+                        <group>
+                            <field name="objective_id"/>
+                            <field name="name"/>
+                            <field name="description"/>
+                            <field name="in_charge_id"/>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="result" widget="percentage"/>
+                                <field name="target" widget="percentage"/>
+                                <field name="weight" widget="percentage"/>
+                            </group>
+                        </group>
                     </group>
                 </sheet>
             </form>
