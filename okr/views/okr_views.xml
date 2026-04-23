@@ -34,6 +34,7 @@
                     <group>
                         <field name="name"/>
                         <field name="level"/>
+                        <field name="cadence"/>
                         <field name="in_charge_id"/>
                         <field name="start_date"/>
                         <field name="end_date"/>
