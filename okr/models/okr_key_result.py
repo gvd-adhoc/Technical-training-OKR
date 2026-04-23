@@ -42,6 +42,12 @@ class OKRKeyResult(models.Model):
 
     @api.constrains("weight")
     def _check_weight(self):
+        """
+        Check that the weight of the key result is within the valid range and that the total weight of key results for an objective does not exceed 100%.
+        Raises:
+            ValidationError: If the weight of the key result is not between 0 and 100.
+            ValidationError: If the total weight of key results for an objective exceeds 100%.
+        """
         for kr in self:
             if kr.weight < 0 or kr.weight > 1:
                 raise ValidationError("Weight must be between 0 and 100.")

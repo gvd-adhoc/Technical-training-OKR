@@ -1,0 +1,89 @@
+<odoo>
+    <!-- OKR -->
+    <record id="rule_okr_user_read" model="ir.rule">
+        <field name="name">OKR User: read all</field>
+        <field name="model_id" ref="model_okr"/>
+        <field name="groups" eval="[(4, ref('okr.group_okr_user'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="perm_read">1</field>
+        <field name="perm_write">0</field>
+    </record>
+    <record id="rule_okr_user_write" model="ir.rule">
+        <field name="name">OKR User: write own</field>
+        <field name="model_id" ref="model_okr"/>
+        <field name="groups" eval="[(4, ref('okr.group_okr_user'))]"/>
+        <field name="domain_force">[('in_charge_id', '=', user.id)]</field>
+        <field name="perm_read">0</field>
+        <field name="perm_write">1</field>
+    </record>
+
+    <!-- OKR Objective -->
+    <record id="rule_okr_objective_user_read" model="ir.rule">
+        <field name="name">OKR Objective User: read all</field>
+        <field name="model_id" ref="model_okr_objective"/>
+        <field name="groups" eval="[(4, ref('okr.group_okr_user'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="perm_read">1</field>
+        <field name="perm_write">0</field>
+    </record>
+    <record id="rule_okr_objective_user_write" model="ir.rule">
+        <field name="name">OKR Objective User: write own</field>
+        <field name="model_id" ref="model_okr_objective"/>
+        <field name="groups" eval="[(4, ref('okr.group_okr_user'))]"/>
+        <field name="domain_force">[('in_charge_id', '=', user.id)]</field>
+        <field name="perm_read">0</field>
+        <field name="perm_write">1</field>
+    </record>
+
+    <!-- OKR Key Result -->
+    <record id="rule_okr_key_result_user_read" model="ir.rule">
+        <field name="name">OKR Key Result User: read all</field>
+        <field name="model_id" ref="model_okr_key_result"/>
+        <field name="groups" eval="[(4, ref('okr.group_okr_user'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="perm_read">1</field>
+        <field name="perm_write">0</field>
+    </record>
+    <record id="rule_okr_key_result_user_write" model="ir.rule">
+        <field name="name">OKR Key Result User: write own</field>
+        <field name="model_id" ref="model_okr_key_result"/>
+        <field name="groups" eval="[(4, ref('okr.group_okr_user'))]"/>
+        <field name="domain_force">[('in_charge_id', '=', user.id)]</field>
+        <field name="perm_read">0</field>
+        <field name="perm_write">1</field>
+    </record>
+
+    <!-- OKR Manager: acceso total -->
+    <record id="rule_okr_manager_all" model="ir.rule">
+        <field name="name">OKR Manager: all access</field>
+        <field name="model_id" ref="model_okr"/>
+        <field name="groups" eval="[(4, ref('okr.group_okr_manager'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="perm_read">1</field>
+        <field name="perm_write">1</field>
+        <field name="perm_create">1</field>
+        <field name="perm_unlink">1</field>
+    </record>
+
+    <record id="rule_okr_objective_manager_all" model="ir.rule">
+        <field name="name">OKR Objective Manager: all access</field>
+        <field name="model_id" ref="model_okr_objective"/>
+        <field name="groups" eval="[(4, ref('okr.group_okr_manager'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="perm_read">1</field>
+        <field name="perm_write">1</field>
+        <field name="perm_create">1</field>
+        <field name="perm_unlink">1</field>
+    </record>
+
+    <record id="rule_okr_key_result_manager_all" model="ir.rule">
+        <field name="name">OKR Key Result Manager: all access</field>
+        <field name="model_id" ref="model_okr_key_result"/>
+        <field name="groups" eval="[(4, ref('okr.group_okr_manager'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="perm_read">1</field>
+        <field name="perm_write">1</field>
+        <field name="perm_create">1</field>
+        <field name="perm_unlink">1</field>
+    </record>
+</odoo>

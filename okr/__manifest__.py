@@ -5,7 +5,9 @@
     "author": "ADHOC SA",
     "depends": ["base"],
     "data": [
+        "security/res_group.xml",
         "security/ir.model.access.csv",
+        "security/ir.rule.xml",
         "data/ir_cron.xml",
         "views/okr_views.xml",
         "views/okr_key_result_views.xml",

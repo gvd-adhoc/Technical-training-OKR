@@ -45,7 +45,8 @@ class OKRObjective(models.Model):
     def _compute_result(self):
         """
         Compute the result of the objective based on its key results.
-        The result is calculated as the weighted average of the results of the active key results."""
+        The result is calculated as the weighted average of the results of the active key results.
+        """
         for objective in self:
             if objective.key_result_ids:
                 # Se calcula la media ponderada de los resultados de los key results respecto al peso que representan sobre el total de peso de los key results del objetivo
