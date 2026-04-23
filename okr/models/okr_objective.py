@@ -46,13 +46,13 @@ class OKRObjective(models.Model):
         for objective in self:
             if objective.key_result_ids:
                 # Se calcula la media ponderada de los resultados de los key results respecto al peso que representan sobre el total de peso de los key results del objetivo
+                active_kr = objective.key_result_ids.filtered(
+                    lambda kr: kr.state == "active"
+                )
                 total_result = sum(
-                    (key_result.result / key_result.target) * key_result.weight
-                    for key_result in objective.key_result_ids
+                    (kr.result / kr.target) * kr.weight for kr in active_kr
                 )
-                objective.result = total_result / sum(
-                    key_result.weight for key_result in objective.key_result_ids
-                )
+                objective.result = total_result / sum(kr.weight for kr in active_kr)
             else:
                 objective.result = 0.0
 
