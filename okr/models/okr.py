@@ -1,3 +1,4 @@
+from odoo.exceptions import ValidationError
 from odoo.tools import date_utils
 
 from odoo import api, fields, models
@@ -65,3 +66,11 @@ class Okr(models.Model):
                 target = date_utils.add(today, months=diff * 3)
                 okr.start_date = date_utils.start_of(target, "quarter")
                 okr.end_date = date_utils.end_of(target, "quarter")
+
+    @api.constrains("cadence")
+    def _check_cadence(self):
+        for okr in self:
+            if okr.cadence != "yearly" and okr.cadence != okr.objective_ids.cadence:
+                raise ValidationError(
+                    "An OKR with quarterly cadence cannot be linked to an objective with a different cadence."
+                )

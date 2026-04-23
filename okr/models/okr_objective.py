@@ -1,3 +1,4 @@
+from odoo.exceptions import ValidationError
 from odoo.tools import date_utils
 
 from odoo import api, fields, models
@@ -25,8 +26,8 @@ class OKRObjective(models.Model):
         default="q1",
     )
     in_charge_id = fields.Many2one("res.users", string="In Charge")
-    start_date = fields.Date(string="Start Date", readonly=True)
-    end_date = fields.Date(string="End Date", readonly=True)
+    start_date = fields.Date(string="Start Date", compute="_compute_period")
+    end_date = fields.Date(string="End Date", compute="_compute_period")
     type = fields.Selection(
         [
             ("committed", "Committed"),
@@ -59,20 +60,27 @@ class OKRObjective(models.Model):
     def _compute_period(self):
         today = fields.Date.today()
         current_month = today.month
+        next_year = today.replace(year=today.year + 1)
 
         # Trimestre actual
         current_q = (current_month - 1) // 3
         cadence_map = {"q1": 0, "q2": 1, "q3": 2, "q4": 3}
 
-        for okr in self:
-            if okr.cadence == "yearly":
-                next_year = today.replace(year=today.year + 1)
-                okr.start_date = date_utils.start_of(next_year, "year")
-                okr.end_date = date_utils.end_of(next_year, "year")
+        for objective in self:
+            if objective.cadence == "yearly":
+                objective.start_date = date_utils.start_of(next_year, "year")
+                objective.end_date = date_utils.end_of(next_year, "year")
+
+            elif objective.okr_id.cadence == "yearly":
+                base_date = date_utils.start_of(next_year, "year")
+                quarter_date = date_utils.add(
+                    base_date, months=3 * cadence_map.get(objective.cadence)
+                )
+                objective.start_date = date_utils.start_of(quarter_date, "quarter")
+                objective.end_date = date_utils.end_of(quarter_date, "quarter")
 
             else:
-                quarter = cadence_map.get(okr.cadence)
-
+                quarter = cadence_map.get(objective.cadence)
                 # Diferencia entre trimestres
                 diff = quarter - current_q
 
@@ -82,5 +90,22 @@ class OKRObjective(models.Model):
 
                 # Cálculo de fechas
                 target = date_utils.add(today, months=diff * 3)
-                okr.start_date = date_utils.start_of(target, "quarter")
-                okr.end_date = date_utils.end_of(target, "quarter")
+                objective.start_date = date_utils.start_of(target, "quarter")
+                objective.end_date = date_utils.end_of(target, "quarter")
+
+    @api.constrains("cadence")
+    def _check_cadence(self):
+        for objective in self:
+            okr_cadence = objective.okr_id.cadence
+            if objective.cadence == "yearly" and okr_cadence != "yearly":
+                raise ValidationError(
+                    "An objective with yearly cadence cannot be linked to an OKR with a different cadence."
+                )
+            if (
+                objective.cadence != "yearly"
+                and okr_cadence != "yearly"
+                and okr_cadence != objective.cadence
+            ):
+                raise ValidationError(
+                    "An objective with quarterly cadence cannot be linked to an OKR with a different cadence."
+                )

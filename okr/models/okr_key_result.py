@@ -30,18 +30,22 @@ class OKRKeyResult(models.Model):
         "Target must be between 0 and 100.",
     )
 
-    @api.model
-    def create(self, vals_list):
-        key_results = self.env["okr.key_result"].search(
-            [("objective_id", "=", vals_list[0].get("objective_id"))]
-        )
-        total_weight = sum(kr.weight for kr in key_results)
-        for vals in vals_list:
-            if vals.get("target") < 0 or vals.get("target") > 1:
-                raise ValidationError("Key result target must be between 0 and 100.")
-            total_weight += vals.get("weight")
+    _check_result = models.Constraint(
+        "CHECK(result >= 0 and result <= 1)",
+        "Result must be between 0 and 100.",
+    )
+
+    @api.constrains("weight")
+    def _check_weight(self):
+        for kr in self:
+            if kr.weight < 0 or kr.weight > 1:
+                raise ValidationError("Weight must be between 0 and 100.")
+            total_weight = sum(
+                self.env["okr.key_result"]
+                .search([("objective_id", "=", kr.objective_id.id)])
+                .mapped("weight")
+            )
             if total_weight > 1:
                 raise ValidationError(
                     "Total weight of key results for an objective cannot exceed 100%."
                 )
-        return super().create(vals_list)
