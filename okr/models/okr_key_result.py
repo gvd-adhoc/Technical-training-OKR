@@ -49,3 +49,11 @@ class OKRKeyResult(models.Model):
                 raise ValidationError(
                     "Total weight of key results for an objective cannot exceed 100%."
                 )
+
+    def set_active(self):
+        for kr in self:
+            kr.state = "active"
+
+    def set_cancelled(self):
+        for kr in self:
+            kr.state = "cancelled"

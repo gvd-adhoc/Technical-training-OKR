@@ -27,7 +27,7 @@ class OKRObjective(models.Model):
     )
     in_charge_id = fields.Many2one("res.users", string="In Charge")
     start_date = fields.Date(string="Start Date", compute="_compute_period")
-    end_date = fields.Date(string="End Date", compute="_compute_period")
+    end_date = fields.Date(string="End Date", compute="_compute_period", store=True)
     type = fields.Selection(
         [
             ("committed", "Committed"),
@@ -109,3 +109,13 @@ class OKRObjective(models.Model):
                 raise ValidationError(
                     "An objective with quarterly cadence cannot be linked to an OKR with a different cadence."
                 )
+
+    def _cron_close_finished_objectives(self):
+        today = fields.Date.today()
+
+        # Buscar los objetivos que han finalizado su periodo
+        objectives = self.search([("end_date", "<", today)])
+
+        # Pasar a finalizado los key results de esos objetivos
+        for obj in objectives:
+            obj.key_result_ids.write({"state": "done"})

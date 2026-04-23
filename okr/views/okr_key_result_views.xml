@@ -26,7 +26,15 @@
         <field name="model">okr.key_result</field>
         <field name="arch" type="xml">
             <form>
+                <header>
+                    <button name="set_active" type="object" string="Activate" invisible="state!='draft' and state!='cancelled'" class="btn-primary"/>
+                    <button name="set_cancelled" type="object" string="Cancel" invisible="state!='draft' and state!='active'" class="btn-danger"/>
+                </header>
                 <sheet>
+                    <widget name="web_ribbon" title="Draft" bg_color="text-bg-primary" invisible="state!='draft'"/>
+                    <widget name="web_ribbon" title="Active" bg_color="text-bg-success" invisible="state!='active'"/>
+                    <widget name="web_ribbon" title="Done" bg_color="text-bg-info" invisible="state!='done'"/>
+                    <widget name="web_ribbon" title="Cancelled" bg_color="text-bg-danger" invisible="state!='cancelled'"/>
                     <group>
                         <field name="objective_id"/>
                         <field name="name"/>

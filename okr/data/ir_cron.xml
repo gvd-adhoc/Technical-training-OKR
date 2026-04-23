@@ -1,0 +1,11 @@
+<odoo>
+    <record id="ir_cron_close_objectives" model="ir.cron">
+        <field name="name">Close Finished Key Results</field>
+        <field name="active" eval="True"/>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="model_id" ref="model_okr_objective"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_close_finished_objectives()</field>
+    </record>
+</odoo>

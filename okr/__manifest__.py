@@ -6,6 +6,7 @@
     "depends": ["base"],
     "data": [
         "security/ir.model.access.csv",
+        "data/ir_cron.xml",
         "views/okr_views.xml",
         "views/okr_key_result_views.xml",
         "views/okr_objective_views.xml",
