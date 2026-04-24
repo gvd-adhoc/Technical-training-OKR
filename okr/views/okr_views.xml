@@ -64,7 +64,7 @@
                                 <field name="cadence" />
                             </group>
                             <group>
-                                <field name="year" />
+                                <field name="year" invisible="parent_id" />
                             </group>
                         </group>
                     </group>
