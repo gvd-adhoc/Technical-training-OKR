@@ -43,8 +43,7 @@ class OKRObjective(models.Model):
 
     @api.depends("key_result_ids.result")
     def _compute_result(self):
-        """
-        Compute the result of the objective based on its key results.
+        """Compute the result of the objective based on its key results.
         The result is calculated as the weighted average of the results of the active key results.
         """
         for objective in self:
@@ -65,9 +64,7 @@ class OKRObjective(models.Model):
 
     @api.depends("cadence")
     def _compute_period(self):
-        """
-        Compute the start and end dates based on the cadence.
-        """
+        """Compute the start and end dates based on the cadence."""
         today = fields.Date.today()
         current_month = today.month
         next_year = today.replace(year=today.year + 1)
@@ -105,8 +102,7 @@ class OKRObjective(models.Model):
 
     @api.constrains("cadence")
     def _check_cadence(self):
-        """
-        Check that the cadence of the objective matches the cadence of its OKR.
+        """Check that the cadence of the objective matches the cadence of its OKR.
         Raises:
             ValidationError: If an objective with yearly cadence is linked to an OKR with a different cadence.
             ValidationError: If an objective with quarterly cadence is linked to an OKR with a different cadence.
@@ -127,9 +123,7 @@ class OKRObjective(models.Model):
                 )
 
     def _cron_close_finished_objectives(self):
-        """
-        Close finished objectives based on their end date.
-        """
+        """Close finished objectives based on their end date."""
         today = fields.Date.today()
 
         # Buscar los objetivos que han finalizado su periodo
@@ -141,9 +135,7 @@ class OKRObjective(models.Model):
 
     @api.ondelete(at_uninstall=False)
     def _on_delete(self):
-        """
-        Handle the deletion of objectives by unlinking related key results.
-        """
+        """Handle the deletion of objectives by unlinking related key results."""
         for objective in self:
             if objective.key_result_ids:
                 for kr in objective.key_result_ids:

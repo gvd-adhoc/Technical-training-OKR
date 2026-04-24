@@ -19,6 +19,13 @@ class Okr(models.Model):
         string="Level",
         required=True,
     )
+    company_ids = fields.Many2many(
+        "res.company",
+        string="Company",
+        default=lambda self: [(6, 0, [self.env.company.id])],
+    )
+    team_ids = fields.Many2many("hr.department", string="Teams")
+    employee_ids = fields.Many2many("hr.employee", string="Employees")
     cadence = fields.Selection(
         [
             ("q1", "Quaterly Q1"),
@@ -45,9 +52,7 @@ class Okr(models.Model):
 
     @api.depends("cadence")
     def _compute_period(self):
-        """
-        Compute the start and end dates based on the cadence.
-        """
+        """Compute the start and end dates based on the cadence."""
         today = fields.Date.today()
         current_month = today.month
 
@@ -117,8 +122,7 @@ class Okr(models.Model):
 
     @api.constrains("parent_id")
     def _check_no_recursive_relationship(self):
-        """
-        Check that there are no recursive relationships between parent and child OKRs.
+        """Check that there are no recursive relationships between parent and child OKRs.
         Raises:
             ValidationError: If a recursive relationship is detected.
         """
@@ -143,6 +147,11 @@ class Okr(models.Model):
 
     @api.constrains("year")
     def _check_year(self):
+        """Check that the year of the OKR is valid.
+        Raises:
+            ValidationError: If the year is not a number.
+            ValidationError: If the year is not within the valid range.
+        """
         actual_year = fields.Date.today().year
         for rec in self:
             if rec.year:
@@ -153,6 +162,10 @@ class Okr(models.Model):
                 raise ValidationError("Year must be valid.")
 
     def action_view_child_okrs(self):
+        """View child OKRs of the current OKR.
+        Returns:
+            dict: Action dictionary to open the child OKRs in a new window.
+        """
         list_view_id = self.env.ref("okr.okr_list_view").id
         form_view_id = self.env.ref("okr.okr_form_view").id
         return {
@@ -166,9 +179,7 @@ class Okr(models.Model):
 
     @api.ondelete(at_uninstall=False)
     def _on_delete(self):
-        """
-        Handle the deletion of OKRs by unlinking related objectives and child OKRs.
-        """
+        """Handle the deletion of OKRs by unlinking related objectives and child OKRs."""
         for okr in self:
             if okr.objective_ids:
                 for objective in okr.objective_ids:

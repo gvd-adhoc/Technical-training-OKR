@@ -3,7 +3,7 @@
     "version": "19.0.1.0.0",
     "category": "Custom",
     "author": "ADHOC SA",
-    "depends": ["base"],
+    "depends": ["base", "hr"],
     "data": [
         "security/res_group.xml",
         "security/ir.model.access.csv",
