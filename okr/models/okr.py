@@ -35,6 +35,12 @@ class Okr(models.Model):
     end_date = fields.Date(string="End Date", compute="_compute_period", store=True)
     parent_id = fields.Many2one("okr", string="Parent OKR")
     child_ids = fields.One2many("okr", "parent_id", string="Child OKRs")
+    child_count = fields.Integer(compute="_compute_child_count")
+
+    @api.depends("child_ids")
+    def _compute_child_count(self):
+        for okr in self:
+            okr.child_count = len(okr.child_ids)
 
     @api.depends("cadence")
     def _compute_period(self):
@@ -108,31 +114,42 @@ class Okr(models.Model):
                         "An OKR with yearly cadence cannot have a parent OKR with a different cadence."
                     )
 
-    @api.constrains("child_ids")
-    def _check_child_parent(self):
-        """
-        Check that there are no recursive relationships between parent and child OKRs and that child OKRs have valid start and end dates.
-        Raises:
-            ValidationError: If a recursive relationship is detected.
-            ValidationError: If a child OKR has a start date earlier than its parent OKR.
-            ValidationError: If a child OKR has an end date later than its parent OKR
-        """
-        for okr in self:
-            parent = okr.parent_id
-            while parent:
-                if parent in okr.child_ids:
-                    raise ValidationError(
-                        "Recursive OKR relationships are not allowed."
-                    )
-                parent = parent.parent_id or False
-            if any(child.start_date < okr.start_date for child in okr.child_ids):
-                raise ValidationError(
-                    "Child OKRs cannot have a start date earlier than their parent OKR."
-                )
-            if any(child.end_date > okr.end_date for child in okr.child_ids):
-                raise ValidationError(
-                    "Child OKRs cannot have an end date later than their parent OKR."
-                )
+    # @api.constrains("child_ids")
+    # def _check_child_parent(self):
+    #     """
+    #     Check that there are no recursive relationships between parent and child OKRs and that child OKRs have valid start and end dates.
+    #     Raises:
+    #         ValidationError: If a recursive relationship is detected.
+    #         ValidationError: If a child OKR has a start date earlier than its parent OKR.
+    #         ValidationError: If a child OKR has an end date later than its parent OKR
+    #     """
+    #     for okr in self:
+    #         parent = okr.parent_id
+    #         while parent:
+    #             if parent in okr.child_ids:
+    #                 raise ValidationError(
+    #                     "Recursive OKR relationships are not allowed."
+    #                 )
+    #             parent = parent.parent_id or False
+    #         if any(child.start_date < okr.start_date for child in okr.child_ids):
+    #             raise ValidationError(
+    #                 "Child OKRs cannot have a start date earlier than their parent OKR."
+    #             )
+    #         if any(child.end_date > okr.end_date for child in okr.child_ids):
+    #             raise ValidationError(
+    #                 "Child OKRs cannot have an end date later than their parent OKR."
+    #             )
+
+    def action_view_child_okrs(self):
+        view_id = self.env.ref("okr.okr_list_view").id
+        return {
+            "name": ("Child OKRs"),
+            "view_mode": "list",
+            "type": "ir.actions.act_window",
+            "res_model": "okr",
+            "views": [(view_id, "list")],
+            "domain": [("parent_id", "=", self.id)],
+        }
 
     @api.ondelete(at_uninstall=False)
     def _on_delete(self):

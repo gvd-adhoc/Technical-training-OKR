@@ -24,7 +24,21 @@
         <field name="model">okr</field>
         <field name="arch" type="xml">
             <form string="OKR">
+                <!-- <header>
+                    <button name="action_view_child_okrs" type="object" icon="fa-sitemap" invisible="not child_ids">
+                        <span class="o_stat_text">Child OKRs</span>
+                    </button>
+                </header> -->
                 <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button"
+                            name="action_view_child_okrs"
+                            type="object"
+                            icon="fa-sitemap"
+                            invisible="not child_ids">
+                            <field name="child_count" string="Child OKRs" widget="statinfo"/>
+                        </button>
+                    </div>
                     <div class="oe_title">
                         <h1>
                             <field name="name" placeholder="Title"/>
@@ -33,7 +47,7 @@
                     <group>
                         <field name="level"/>
                         <field name="cadence"/>
-                        <field name="child_ids" widget="many2many_tags" domain="[('id', '!=', id)]"/>
+                        <field name="parent_id" domain="[('id', '!=', id), ('id', 'not in', child_ids)]"/>
                         <field name="in_charge_id"/>
                         <field name="start_date"/>
                         <field name="end_date"/>
