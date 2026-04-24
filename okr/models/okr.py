@@ -141,13 +141,14 @@ class Okr(models.Model):
     #             )
 
     def action_view_child_okrs(self):
-        view_id = self.env.ref("okr.okr_list_view").id
+        list_view_id = self.env.ref("okr.okr_list_view").id
+        form_view_id = self.env.ref("okr.okr_form_view").id
         return {
             "name": ("Child OKRs"),
-            "view_mode": "list",
+            "view_mode": "list, form",
             "type": "ir.actions.act_window",
             "res_model": "okr",
-            "views": [(view_id, "list")],
+            "views": [(list_view_id, "list"), (form_view_id, "form")],
             "domain": [("parent_id", "=", self.id)],
         }
 
