@@ -26,18 +26,13 @@ class OKRKeyResult(models.Model):
     )
 
     _check_target = models.Constraint(
-        "CHECK(target >= 0 and target <= 1)",
-        "Target must be between 0 and 100.",
+        "CHECK(target >= 0)",
+        "Target must be between positive.",
     )
 
     _check_valid_result = models.Constraint(
-        "CHECK(result >= 0 and result <= 1)",
-        "Result must be between 0 and 100.",
-    )
-
-    _check_result_vs_target = models.Constraint(
-        "CHECK(result <= target)",
-        "Result cannot exceed the target.",
+        "CHECK(result >= 0)",
+        "Result must be positive.",
     )
 
     @api.constrains("weight")
@@ -68,3 +63,7 @@ class OKRKeyResult(models.Model):
     def set_cancelled(self):
         for kr in self:
             kr.state = "cancelled"
+
+    def set_draft(self):
+        for kr in self:
+            kr.state = "draft"

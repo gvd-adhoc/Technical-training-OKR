@@ -30,6 +30,7 @@
                 <header>
                     <button name="set_active" type="object" string="Activate" invisible="state!='draft' and state!='cancelled'" class="btn-primary"/>
                     <button name="set_cancelled" type="object" string="Cancel" invisible="state!='draft' and state!='active'" class="btn-danger"/>
+                    <button name="set_draft" type="object" string="Reset to Draft" invisible="state!='cancelled' and state!='active' and state!='done'" class="btn-secondary"/>
                 </header>
                 <sheet>
                     <widget name="web_ribbon" title="Draft" bg_color="text-bg-primary" invisible="state!='draft'"/>
