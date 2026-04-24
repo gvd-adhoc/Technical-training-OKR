@@ -30,6 +30,7 @@ class Okr(models.Model):
         string="Cadence",
         default="yearly",
     )
+    year = fields.Char(string="Year", default=fields.Date.today().year)
     in_charge_id = fields.Many2one("res.users", string="In Charge")
     start_date = fields.Date(string="Start Date", compute="_compute_period", store=True)
     end_date = fields.Date(string="End Date", compute="_compute_period", store=True)
@@ -139,6 +140,17 @@ class Okr(models.Model):
                     raise ValidationError(
                         "Child OKRs cannot have an end date later than their parent OKR."
                     )
+
+    @api.constrains("year")
+    def _check_year(self):
+        actual_year = fields.Date.today().year
+        for rec in self:
+            if rec.year:
+                if not rec.year.isdigit():
+                    raise ValidationError("Year must be a number.")
+            input_year = int(rec.year)
+            if input_year < actual_year or input_year > (actual_year + 10):
+                raise ValidationError("Year must be valid.")
 
     def action_view_child_okrs(self):
         list_view_id = self.env.ref("okr.okr_list_view").id

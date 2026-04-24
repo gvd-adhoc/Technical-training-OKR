@@ -24,11 +24,6 @@
         <field name="model">okr</field>
         <field name="arch" type="xml">
             <form string="OKR">
-                <!-- <header>
-                    <button name="action_view_child_okrs" type="object" icon="fa-sitemap" invisible="not child_ids">
-                        <span class="o_stat_text">Child OKRs</span>
-                    </button>
-                </header> -->
                 <sheet>
                     <div class="oe_button_box" name="button_box">
                         <button class="oe_stat_button"
@@ -47,6 +42,7 @@
                     <group>
                         <field name="level"/>
                         <field name="cadence"/>
+                        <field name="year" options="{'format': False}"/>
                         <field name="parent_id" domain="[('id', '!=', id), ('id', 'not in', child_ids)]"/>
                         <field name="in_charge_id"/>
                         <field name="start_date"/>
