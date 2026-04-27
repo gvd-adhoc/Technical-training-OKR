@@ -26,8 +26,12 @@ class OKRObjective(models.Model):
         default="q1",
     )
     in_charge_id = fields.Many2one("res.users", string="In Charge")
-    start_date = fields.Date(string="Start Date", compute="_compute_period", store=True)
-    end_date = fields.Date(string="End Date", compute="_compute_period", store=True)
+    start_date = fields.Date(
+        string="Start Date", compute="_compute_period", store=True, recursive=True
+    )
+    end_date = fields.Date(
+        string="End Date", compute="_compute_period", store=True, recursive=True
+    )
     type = fields.Selection(
         [
             ("committed", "Committed"),
@@ -48,7 +52,7 @@ class OKRObjective(models.Model):
         """
         for objective in self:
             if objective.key_result_ids:
-                # Se calcula la media ponderada de los resultados de los key results respecto al peso que representan sobre el total de peso de los key results del objetivo
+                # The weighted average of the key results is calculated with respect to the weight they represent on the total weight of the key results of the objective.
                 active_kr = objective.key_result_ids.filtered(
                     lambda kr: kr.state == "active"
                 )
@@ -62,40 +66,46 @@ class OKRObjective(models.Model):
             else:
                 objective.result = 0.0
 
-    @api.depends("cadence")
+    @api.depends("cadence", "okr_id.start_date", "okr_id.end_date")
     def _compute_period(self):
         """Compute the start and end dates based on the cadence."""
         today = fields.Date.today()
         current_month = today.month
-        next_year = today.replace(year=today.year + 1)
 
-        # Trimestre actual
+        # Current quarter
         current_q = (current_month - 1) // 3
         cadence_map = {"q1": 0, "q2": 1, "q3": 2, "q4": 3}
 
         for objective in self:
+            okr_year = (
+                int(objective.okr_id.start_date.year)
+                if objective.okr_id and objective.okr_id.start_date
+                else today.year + 1
+            )
+            okr_date = today.replace(year=okr_year)
+            # If the objective has a yearly cadence, its period is the year of the OKR it belongs to.
             if objective.cadence == "yearly":
-                objective.start_date = date_utils.start_of(next_year, "year")
-                objective.end_date = date_utils.end_of(next_year, "year")
-
-            elif objective.okr_id.cadence == "yearly":
-                base_date = date_utils.start_of(next_year, "year")
+                objective.start_date = date_utils.start_of(okr_date, "year")
+                objective.end_date = date_utils.end_of(okr_date, "year")
+            # If the objective has a quarterly cadence, its period is the quarter of the OKR it belongs to that corresponds to its cadence.
+            elif objective.okr_id:
+                base_date = date_utils.start_of(okr_date, "year")
                 quarter_date = date_utils.add(
                     base_date, months=3 * cadence_map.get(objective.cadence)
                 )
                 objective.start_date = date_utils.start_of(quarter_date, "quarter")
                 objective.end_date = date_utils.end_of(quarter_date, "quarter")
-
+            # If the objective does not belong to any OKR, the quarter that corresponds according to the current date is assigned.
             else:
                 quarter = cadence_map.get(objective.cadence)
-                # Diferencia entre trimestres
+                # Difference between quarters
                 diff = quarter - current_q
 
-                # Si ya pasó o se está transitando, se pasa al siguiente año
+                # If it has already passed or is currently ongoing, move to the next year
                 if diff <= 0:
                     diff += 4
 
-                # Cálculo de fechas
+                # Date calculation
                 target = date_utils.add(today, months=diff * 3)
                 objective.start_date = date_utils.start_of(target, "quarter")
                 objective.end_date = date_utils.end_of(target, "quarter")
@@ -125,11 +135,8 @@ class OKRObjective(models.Model):
     def _cron_close_finished_objectives(self):
         """Close finished objectives based on their end date."""
         today = fields.Date.today()
-
-        # Buscar los objetivos que han finalizado su periodo
         objectives = self.search([("end_date", "<", today)])
 
-        # Pasar a finalizado los key results de esos objetivos
         for obj in objectives:
             obj.key_result_ids.write({"state": "done"})
 

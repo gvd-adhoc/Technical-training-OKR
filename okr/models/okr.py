@@ -1,5 +1,3 @@
-from datetime import date
-
 from odoo.exceptions import ValidationError
 from odoo.tools import date_utils
 
@@ -41,8 +39,12 @@ class Okr(models.Model):
     )
     year = fields.Char(string="Year", default=fields.Date.today().year)
     in_charge_id = fields.Many2one("res.users", string="In Charge")
-    start_date = fields.Date(string="Start Date", compute="_compute_period", store=True)
-    end_date = fields.Date(string="End Date", compute="_compute_period", store=True)
+    start_date = fields.Date(
+        string="Start Date", compute="_compute_period", store=True, recursive=True
+    )
+    end_date = fields.Date(
+        string="End Date", compute="_compute_period", store=True, recursive=True
+    )
     parent_id = fields.Many2one("okr", string="Parent OKR")
     child_ids = fields.One2many("okr", "parent_id", string="Child OKRs")
     child_count = fields.Integer(compute="_compute_child_count")
@@ -52,13 +54,13 @@ class Okr(models.Model):
         for okr in self:
             okr.child_count = len(okr.child_ids)
 
-    @api.depends("cadence")
+    @api.depends("cadence", "year", "parent_id.start_date", "parent_id.end_date")
     def _compute_period(self):
         """Compute the start and end dates based on the cadence."""
         today = fields.Date.today()
         current_month = today.month
 
-        # Trimestre actual
+        # Current quarter
         current_q = (current_month - 1) // 3
         cadence_map = {"q1": 0, "q2": 1, "q3": 2, "q4": 3}
 
@@ -77,7 +79,7 @@ class Okr(models.Model):
                 okr.start_date = date_utils.start_of(okr_date, "year")
                 okr.end_date = date_utils.end_of(okr_date, "year")
 
-            # Si es un OKR padre, debe ser anual
+            # If it's a parent OKR, it should be annual
             elif not okr.parent_id:
                 raise ValidationError(
                     "An OKR without a parent cannot have a quarterly cadence."
@@ -85,23 +87,26 @@ class Okr(models.Model):
             else:
                 quarter = cadence_map.get(okr.cadence)
 
-                # Si el OKR tiene un padre con el año definido, se toma para calcular las fechas del trimestre
+                # If the OKR has a parent with a defined year, use it to calculate the quarter dates
                 if okr.parent_id.year:
                     parent_year = int(okr.parent_id.year)
-                    target = date(parent_year, quarter * 3 + 1, 1)
+                    base_date = date_utils.start_of(today, "year").replace(
+                        year=parent_year
+                    )
+                    target = date_utils.add(base_date, months=quarter * 3)
                     okr.start_date = date_utils.start_of(target, "quarter")
                     okr.end_date = date_utils.end_of(target, "quarter")
 
                 else:
-                    # Se asigna el trimestre que corresponde según la fecha actual.
-                    # Diferencia entre trimestres
+                    # The quarter that corresponds to the current date is assigned
+                    # Difference between quarters
                     diff = quarter - current_q
 
-                    # Si ya pasó o se está transitando, se pasa al siguiente año
+                    # If it has already passed or is currently ongoing, move to the next year
                     if diff <= 0:
                         diff += 4
 
-                    # Cálculo de fechas
+                    # Date calculation
                     target = date_utils.add(today, months=diff * 3)
                     okr.start_date = date_utils.start_of(target, "quarter")
                     okr.end_date = date_utils.end_of(target, "quarter")
