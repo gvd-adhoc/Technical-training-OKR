@@ -1,3 +1,5 @@
+from datetime import date
+
 from odoo.exceptions import ValidationError
 from odoo.tools import date_utils
 
@@ -62,24 +64,47 @@ class Okr(models.Model):
 
         for okr in self:
             if okr.cadence == "yearly":
-                next_year = today.replace(year=today.year + 1)
-                okr.start_date = date_utils.start_of(next_year, "year")
-                okr.end_date = date_utils.end_of(next_year, "year")
+                if okr.year and not okr.parent_id:
+                    okr_date = today.replace(year=int(okr.year))
+                elif okr.parent_id:
+                    okr_date = today.replace(
+                        year=int(okr.parent_id.year)
+                        if okr.parent_id.year
+                        else today.year
+                    )
+                else:
+                    okr_date = today.replace(year=today.year + 1)
+                okr.start_date = date_utils.start_of(okr_date, "year")
+                okr.end_date = date_utils.end_of(okr_date, "year")
 
+            # Si es un OKR padre, debe ser anual
+            elif not okr.parent_id:
+                raise ValidationError(
+                    "An OKR without a parent cannot have a quarterly cadence."
+                )
             else:
                 quarter = cadence_map.get(okr.cadence)
 
-                # Diferencia entre trimestres
-                diff = quarter - current_q
+                # Si el OKR tiene un padre con el año definido, se toma para calcular las fechas del trimestre
+                if okr.parent_id.year:
+                    parent_year = int(okr.parent_id.year)
+                    target = date(parent_year, quarter * 3 + 1, 1)
+                    okr.start_date = date_utils.start_of(target, "quarter")
+                    okr.end_date = date_utils.end_of(target, "quarter")
 
-                # Si ya pasó o se está transitando, se pasa al siguiente año
-                if diff <= 0:
-                    diff += 4
+                else:
+                    # Se asigna el trimestre que corresponde según la fecha actual.
+                    # Diferencia entre trimestres
+                    diff = quarter - current_q
 
-                # Cálculo de fechas
-                target = date_utils.add(today, months=diff * 3)
-                okr.start_date = date_utils.start_of(target, "quarter")
-                okr.end_date = date_utils.end_of(target, "quarter")
+                    # Si ya pasó o se está transitando, se pasa al siguiente año
+                    if diff <= 0:
+                        diff += 4
+
+                    # Cálculo de fechas
+                    target = date_utils.add(today, months=diff * 3)
+                    okr.start_date = date_utils.start_of(target, "quarter")
+                    okr.end_date = date_utils.end_of(target, "quarter")
 
     @api.constrains("cadence")
     def _check_cadence(self):
