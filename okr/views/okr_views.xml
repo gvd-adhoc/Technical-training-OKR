@@ -86,4 +86,24 @@
             </form>
         </field>
     </record>
+
+    <record id="okr_search_view" model="ir.ui.view">
+        <field name="name">okr.search</field>
+        <field name="model">okr</field>
+        <field name="arch" type="xml">
+            <search string="OKRs">
+                <field name="name"/>
+                <field name="year"/>
+                <field name="level"/>
+                <field name="cadence"/>
+                <field name="in_charge_id"/>
+                <field name="parent_id"/>
+                <filter name="my_okrs" string="My OKRs" domain="[('in_charge_id', '=', uid)]"/>
+                <filter name="root_okrs" string="Root OKRs" domain="[('parent_id', '=', False)]"/>
+                <filter name="group_by_responsible" string="Responsible" context="{'group_by': 'in_charge_id'}"/>
+                <filter name="group_by_year" string="Year" context="{'group_by': 'year'}"/>
+                <filter name="group_by_level" string="Level" context="{'group_by': 'level'}"/>
+            </search>
+        </field>
+    </record>
 </odoo>

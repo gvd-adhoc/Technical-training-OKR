@@ -56,4 +56,23 @@
             </form>
         </field>
     </record>
+
+    <record id="okr_key_result_search_view" model="ir.ui.view">
+        <field name="name">okr.key_result.search</field>
+        <field name="model">okr.key_result</field>
+        <field name="arch" type="xml">
+            <search string="Key Results">
+                <field name="name"/>
+                <field name="objective_id"/>
+                <field name="in_charge_id"/>
+                <filter name="state_active" string="Active" domain="[('state', '=', 'active')]"/>
+                <filter name="state_draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                <filter name="state_done" string="Done" domain="[('state', '=', 'done')]"/>
+                <filter name="state_cancelled" string="Cancelled" domain="[('state', '=', 'cancelled')]"/>
+                <filter name="group_by_state" string="Group By State" context="{'group_by': 'state'}"/>
+                <filter name="group_by_responsible" string="Responsible" context="{'group_by': 'in_charge_id'}"/>
+                <filter name="my_pending" string="My Pending" domain="[('in_charge_id', '=', uid), ('state', 'not in', ['done','cancelled'])]"/>
+            </search>
+        </field>
+    </record>
 </odoo>
