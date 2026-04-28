@@ -28,10 +28,10 @@ class Okr(models.Model):
     employee_ids = fields.Many2many("hr.employee", string="Employees")
     cadence = fields.Selection(
         [
-            ("q1", "Quaterly Q1"),
-            ("q2", "Quaterly Q2"),
-            ("q3", "Quaterly Q3"),
-            ("q4", "Quaterly Q4"),
+            ("q1", "Quarterly Q1"),
+            ("q2", "Quarterly Q2"),
+            ("q3", "Quarterly Q3"),
+            ("q4", "Quarterly Q4"),
             ("yearly", "Yearly"),
         ],
         string="Cadence",

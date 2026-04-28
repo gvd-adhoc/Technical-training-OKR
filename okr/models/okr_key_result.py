@@ -27,7 +27,7 @@ class OKRKeyResult(models.Model):
 
     _check_target = models.Constraint(
         "CHECK(target >= 0)",
-        "Target must be between positive.",
+        "Target must be positive.",
     )
 
     _check_valid_result = models.Constraint(
