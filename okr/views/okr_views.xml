@@ -100,7 +100,7 @@
                 <field name="parent_id"/>
                 <filter name="my_okrs" string="My OKRs" domain="[('in_charge_id', '=', uid)]"/>
                 <filter name="root_okrs" string="Root OKRs" domain="[('parent_id', '=', False)]"/>
-                <filter name="group_by_responsible" string="Responsible" context="{'group_by': 'in_charge_id'}"/>
+                <filter name="group_by_in_charge" string="In Charge" context="{'group_by': 'in_charge_id'}"/>
                 <filter name="group_by_year" string="Year" context="{'group_by': 'year'}"/>
                 <filter name="group_by_level" string="Level" context="{'group_by': 'level'}"/>
             </search>

@@ -70,7 +70,7 @@
                 <filter name="state_done" string="Done" domain="[('state', '=', 'done')]"/>
                 <filter name="state_cancelled" string="Cancelled" domain="[('state', '=', 'cancelled')]"/>
                 <filter name="group_by_state" string="Group By State" context="{'group_by': 'state'}"/>
-                <filter name="group_by_responsible" string="Responsible" context="{'group_by': 'in_charge_id'}"/>
+                <filter name="group_by_in_charge" string="In Charge" context="{'group_by': 'in_charge_id'}"/>
                 <filter name="my_pending" string="My Pending" domain="[('in_charge_id', '=', uid), ('state', 'not in', ['done','cancelled'])]"/>
             </search>
         </field>

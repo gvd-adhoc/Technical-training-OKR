@@ -51,6 +51,7 @@ class Okr(models.Model):
 
     @api.depends("child_ids")
     def _compute_child_count(self):
+        """Compute the number of child OKRs for each OKR."""
         for okr in self:
             okr.child_count = len(okr.child_ids)
 

@@ -67,7 +67,7 @@
                 <field name="in_charge_id"/>
                 <field name="type"/>
                 <filter name="my_objective" string="My Objectives" domain="[('in_charge_id', '=', uid)]"/>
-                <filter name="group_by_responsible" string="Responsible" context="{'group_by': 'in_charge_id'}"/>
+                <filter name="group_by_in_charge" string="In Charge" context="{'group_by': 'in_charge_id'}"/>
                 <filter name="group_by_type" string="Type" context="{'group_by': 'type'}"/>
             </search>
         </field>
