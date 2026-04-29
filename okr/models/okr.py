@@ -66,15 +66,11 @@ class Okr(models.Model):
         cadence_map = {"q1": 0, "q2": 1, "q3": 2, "q4": 3}
 
         for okr in self:
-            if okr.cadence == "yearly":
-                if okr.year and not okr.parent_id:
-                    okr_date = today.replace(year=int(okr.year))
-                elif okr.parent_id:
-                    okr_date = today.replace(
-                        year=int(okr.parent_id.year)
-                        if okr.parent_id.year
-                        else today.year
-                    )
+            cadence = okr.parent_id.cadence if okr.parent_id else okr.cadence
+            year = okr.parent_id.year if okr.parent_id else okr.year
+            if cadence == "yearly":
+                if year:
+                    okr_date = today.replace(year=int(year))
                 else:
                     okr_date = today.replace(year=today.year + 1)
                 okr.start_date = date_utils.start_of(okr_date, "year")
@@ -86,7 +82,7 @@ class Okr(models.Model):
                     "An OKR without a parent cannot have a quarterly cadence."
                 )
             else:
-                quarter = cadence_map.get(okr.cadence)
+                quarter = cadence_map.get(cadence)
 
                 # If the OKR has a parent with a defined year, use it to calculate the quarter dates
                 if okr.parent_id.year:
@@ -111,6 +107,7 @@ class Okr(models.Model):
                     target = date_utils.add(today, months=diff * 3)
                     okr.start_date = date_utils.start_of(target, "quarter")
                     okr.end_date = date_utils.end_of(target, "quarter")
+            okr.year = year
 
     @api.constrains("cadence")
     def _check_cadence(self):
@@ -165,16 +162,16 @@ class Okr(models.Model):
                         "Recursive OKR relationships are not allowed."
                     )
                 parent = parent.parent_id or False
-            parent = okr.parent_id
-            if parent:
-                if okr.start_date < parent.start_date:
-                    raise ValidationError(
-                        "Child OKRs cannot have a start date earlier than their parent OKR."
-                    )
-                if okr.end_date > parent.end_date:
-                    raise ValidationError(
-                        "Child OKRs cannot have an end date later than their parent OKR."
-                    )
+            # parent = okr.parent_id
+            # if parent:
+            #     if okr.start_date < parent.start_date:
+            #         raise ValidationError(
+            #             "Child OKRs cannot have a start date earlier than their parent OKR."
+            #         )
+            #     if okr.end_date > parent.end_date:
+            #         raise ValidationError(
+            #             "Child OKRs cannot have an end date later than their parent OKR."
+            #         )
 
     @api.constrains("year")
     def _check_year(self):

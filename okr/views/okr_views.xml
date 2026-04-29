@@ -71,7 +71,7 @@
                     <notebook>
                         <page string="Objectives" invisible="not id">
                             <field name="objective_ids">
-                                <list>
+                                <list delete="0">
                                     <field name="description" />
                                     <field name="in_charge_id" />
                                     <field name="result" widget="percentage" />
