@@ -1,19 +1,16 @@
+from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 from odoo.tools import date_utils
-
-from odoo import api, fields, models
 
 
 class OKRObjective(models.Model):
     _name = "okr.objective"
     _description = "OKR Objective"
 
-    name = fields.Char(string="Name", required=True)
-    description = fields.Text(string="Description", required=True)
-    okr_id = fields.Many2one("okr", string="OKR", default=False)
-    key_result_ids = fields.One2many(
-        "okr.key_result", "objective_id", string="Key Results"
-    )
+    name = fields.Char(required=True)
+    description = fields.Text(required=True)
+    okr_id = fields.Many2one("okr", default=False, string="OKR")
+    key_result_ids = fields.One2many("okr.key_result", "objective_id", string="Key Results")
     cadence = fields.Selection(
         [
             ("q1", "Quarterly Q1"),
@@ -22,26 +19,19 @@ class OKRObjective(models.Model):
             ("q4", "Quarterly Q4"),
             ("yearly", "Yearly"),
         ],
-        string="Cadence",
         default="q1",
     )
     in_charge_id = fields.Many2one("res.users", string="In Charge")
-    start_date = fields.Date(
-        string="Start Date", compute="_compute_period", store=True, recursive=True
-    )
-    end_date = fields.Date(
-        string="End Date", compute="_compute_period", store=True, recursive=True
-    )
+    start_date = fields.Date(compute="_compute_period", store=True, recursive=True)
+    end_date = fields.Date(compute="_compute_period", store=True, recursive=True)
     type = fields.Selection(
         [
             ("committed", "Committed"),
             ("aspirational", "Aspirational"),
         ],
-        string="Type",
         required=True,
     )
     result = fields.Float(
-        string="Result",
         compute="_compute_result",
     )
 
@@ -53,13 +43,9 @@ class OKRObjective(models.Model):
         for objective in self:
             if objective.key_result_ids:
                 # The weighted average of the key results is calculated with respect to the weight they represent on the total weight of the key results of the objective.
-                active_kr = objective.key_result_ids.filtered(
-                    lambda kr: kr.state == "active"
-                )
+                active_kr = objective.key_result_ids.filtered(lambda kr: kr.state == "active")
                 if active_kr:
-                    total_result = sum(
-                        (kr.result / kr.target) * kr.weight for kr in active_kr
-                    )
+                    total_result = sum((kr.result / kr.target) * kr.weight for kr in active_kr)
                     objective.result = total_result / sum(kr.weight for kr in active_kr)
                 else:
                     objective.result = 0.0
@@ -90,9 +76,7 @@ class OKRObjective(models.Model):
             # If the objective has a quarterly cadence, its period is the quarter of the OKR it belongs to that corresponds to its cadence.
             elif objective.okr_id:
                 base_date = date_utils.start_of(okr_date, "year")
-                quarter_date = date_utils.add(
-                    base_date, months=3 * cadence_map.get(objective.cadence)
-                )
+                quarter_date = date_utils.add(base_date, months=3 * cadence_map.get(objective.cadence))
                 objective.start_date = date_utils.start_of(quarter_date, "quarter")
                 objective.end_date = date_utils.end_of(quarter_date, "quarter")
             # If the objective does not belong to any OKR, the quarter that corresponds according to the current date is assigned.
@@ -123,11 +107,7 @@ class OKRObjective(models.Model):
                 raise ValidationError(
                     "An objective with yearly cadence cannot be linked to an OKR with a different cadence."
                 )
-            if (
-                objective.cadence != "yearly"
-                and okr_cadence != "yearly"
-                and okr_cadence != objective.cadence
-            ):
+            if objective.cadence != "yearly" and okr_cadence != "yearly" and okr_cadence != objective.cadence:
                 raise ValidationError(
                     "An objective with quarterly cadence cannot be linked to an OKR with a different cadence."
                 )

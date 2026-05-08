@@ -1,18 +1,17 @@
-from odoo.exceptions import ValidationError
-
 from odoo import api, fields, models
+from odoo.exceptions import ValidationError
 
 
 class OKRKeyResult(models.Model):
     _name = "okr.key_result"
     _description = "OKR Key Result"
 
-    name = fields.Char(string="Name", required=True)
-    description = fields.Text(string="Description", required=True)
-    objective_id = fields.Many2one("okr.objective", string="Objective", default=False)
-    result = fields.Float(string="Result", default=0)
-    target = fields.Float(string="Target", default=1)
-    weight = fields.Float(string="Weight", default=0)
+    name = fields.Char(required=True)
+    description = fields.Text(required=True)
+    objective_id = fields.Many2one("okr.objective", default=False, string="Objective")
+    result = fields.Float(default=0)
+    target = fields.Float(default=1)
+    weight = fields.Float(default=0)
     in_charge_id = fields.Many2one("res.users", string="In Charge")
     state = fields.Selection(
         [
@@ -21,7 +20,6 @@ class OKRKeyResult(models.Model):
             ("cancelled", "Cancelled"),
             ("done", "Done"),
         ],
-        string="State",
         default="draft",
     )
 
@@ -46,14 +44,10 @@ class OKRKeyResult(models.Model):
             if kr.weight < 0 or kr.weight > 1:
                 raise ValidationError("Weight must be between 0 and 100.")
             total_weight = sum(
-                self.env["okr.key_result"]
-                .search([("objective_id", "=", kr.objective_id.id)])
-                .mapped("weight")
+                self.env["okr.key_result"].search([("objective_id", "=", kr.objective_id.id)]).mapped("weight")
             )
             if total_weight > 1:
-                raise ValidationError(
-                    "Total weight of key results for an objective cannot exceed 100%."
-                )
+                raise ValidationError("Total weight of key results for an objective cannot exceed 100%.")
 
     def set_active(self):
         for kr in self:

@@ -28,7 +28,7 @@ Technical Details
   - Security: `security/ir.model.access.csv`, `security/res_group.xml`, and `security/ir_rule.xml` for access permission management.
 
 Usage
-===
+=====
 1. Install the OKR module in Odoo.
 2. Access the OKR menu to create and manage objectives and Key Results.
 3. Define the OKR hierarchy.

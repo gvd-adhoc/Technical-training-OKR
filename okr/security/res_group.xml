@@ -1,6 +1,5 @@
 <odoo>
     <record id="module_category_okr" model="ir.module.category">
-         <field name="name">OKR</field>
         <field name="name">OKR</field>
         <field name="description">Manage OKR, objectives and key results</field>
     </record>

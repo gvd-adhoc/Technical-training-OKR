@@ -1,14 +1,13 @@
+from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 from odoo.tools import date_utils
-
-from odoo import api, fields, models
 
 
 class Okr(models.Model):
     _name = "okr"
     _description = "OKR"
 
-    name = fields.Char(string="Name", required=True)
+    name = fields.Char(required=True)
     objective_ids = fields.One2many("okr.objective", "okr_id", string="Objectives")
     level = fields.Selection(
         [
@@ -16,7 +15,6 @@ class Okr(models.Model):
             ("team", "Team"),
             ("individual", "Individual"),
         ],
-        string="Level",
         required=True,
     )
     company_ids = fields.Many2many(
@@ -34,17 +32,12 @@ class Okr(models.Model):
             ("q4", "Quarterly Q4"),
             ("yearly", "Yearly"),
         ],
-        string="Cadence",
         default="yearly",
     )
-    year = fields.Char(string="Year", default=fields.Date.today().year)
+    year = fields.Char(default=fields.Date.today().year)
     in_charge_id = fields.Many2one("res.users", string="In Charge")
-    start_date = fields.Date(
-        string="Start Date", compute="_compute_period", store=True, recursive=True
-    )
-    end_date = fields.Date(
-        string="End Date", compute="_compute_period", store=True, recursive=True
-    )
+    start_date = fields.Date(compute="_compute_period", store=True, recursive=True)
+    end_date = fields.Date(compute="_compute_period", store=True, recursive=True)
     parent_id = fields.Many2one("okr", string="Parent OKR")
     child_ids = fields.One2many("okr", "parent_id", string="Child OKRs")
     child_count = fields.Integer(compute="_compute_child_count")
@@ -78,18 +71,14 @@ class Okr(models.Model):
 
             # If it's a parent OKR, it should be annual
             elif not okr.parent_id:
-                raise ValidationError(
-                    "An OKR without a parent cannot have a quarterly cadence."
-                )
+                raise ValidationError("An OKR without a parent cannot have a quarterly cadence.")
             else:
                 quarter = cadence_map.get(cadence)
 
                 # If the OKR has a parent with a defined year, use it to calculate the quarter dates
                 if okr.parent_id.year:
                     parent_year = int(okr.parent_id.year)
-                    base_date = date_utils.start_of(today, "year").replace(
-                        year=parent_year
-                    )
+                    base_date = date_utils.start_of(today, "year").replace(year=parent_year)
                     target = date_utils.add(base_date, months=quarter * 3)
                     okr.start_date = date_utils.start_of(target, "quarter")
                     okr.end_date = date_utils.end_of(target, "quarter")
@@ -120,28 +109,16 @@ class Okr(models.Model):
         """
         for okr in self:
             if okr.cadence != "yearly":
-                if okr.objective_ids and any(
-                    okr.cadence != obj.cadence for obj in okr.objective_ids
-                ):
+                if okr.objective_ids and any(okr.cadence != obj.cadence for obj in okr.objective_ids):
                     raise ValidationError(
                         "An OKR with quarterly cadence cannot be linked to an objective with a different cadence."
                     )
 
-                if (
-                    okr.parent_id
-                    and okr.parent_id.cadence != "yearly"
-                    and okr.parent_id.cadence != okr.cadence
-                ):
-                    raise ValidationError(
-                        "An OKR cannot have a different quarterly cadence than its parent OKR."
-                    )
+                if okr.parent_id and okr.parent_id.cadence != "yearly" and okr.parent_id.cadence != okr.cadence:
+                    raise ValidationError("An OKR cannot have a different quarterly cadence than its parent OKR.")
 
-                if okr.child_ids and any(
-                    okr.cadence != child.cadence for child in okr.child_ids
-                ):
-                    raise ValidationError(
-                        "An OKR cannot have a different quarterly cadence than its child OKRs."
-                    )
+                if okr.child_ids and any(okr.cadence != child.cadence for child in okr.child_ids):
+                    raise ValidationError("An OKR cannot have a different quarterly cadence than its child OKRs.")
             else:
                 if okr.parent_id and okr.parent_id.cadence != "yearly":
                     raise ValidationError(
@@ -158,9 +135,7 @@ class Okr(models.Model):
             parent = okr.parent_id
             while parent:
                 if parent == okr:
-                    raise ValidationError(
-                        "Recursive OKR relationships are not allowed."
-                    )
+                    raise ValidationError("Recursive OKR relationships are not allowed.")
                 parent = parent.parent_id or False
             # parent = okr.parent_id
             # if parent:
