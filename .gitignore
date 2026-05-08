@@ -1,6 +1,7 @@
 # Python bytecode/cache files generated while running Odoo/tests
 __pycache__/
 *.py[cod]
+*.pyc
 
 # Local Codex workspace marker
 .codex

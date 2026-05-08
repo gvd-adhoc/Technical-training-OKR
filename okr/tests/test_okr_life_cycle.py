@@ -558,7 +558,16 @@ class TestOKRLifeCycle(TransactionCase):
                 "name": "Usuario OKR",
                 "login": "usuario_okr_test@test.com",
                 "email": "usuario_okr_test@test.com",
-                "groups_id": [(6, 0, [self.env.ref("okr.group_okr_user").id])],
+                "group_ids": [
+                    (
+                        6,
+                        0,
+                        [
+                            self.env.ref("base.group_user").id,
+                            self.env.ref("okr.group_okr_user").id,
+                        ],
+                    )
+                ],
             }
         )
 
@@ -579,7 +588,16 @@ class TestOKRLifeCycle(TransactionCase):
                 "name": "Manager OKR",
                 "login": "manager_okr_test@test.com",
                 "email": "manager_okr_test@test.com",
-                "groups_id": [(6, 0, [self.env.ref("okr.group_okr_manager").id])],
+                "group_ids": [
+                    (
+                        6,
+                        0,
+                        [
+                            self.env.ref("base.group_user").id,
+                            self.env.ref("okr.group_okr_manager").id,
+                        ],
+                    )
+                ],
             }
         )
 

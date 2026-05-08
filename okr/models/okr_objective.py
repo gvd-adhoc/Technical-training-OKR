@@ -35,7 +35,7 @@ class OKRObjective(models.Model):
         compute="_compute_result",
     )
 
-    @api.depends("key_result_ids.result")
+    @api.depends("key_result_ids.result", "key_result_ids.state", "key_result_ids.target", "key_result_ids.weight")
     def _compute_result(self):
         """Compute the result of the objective based on its key results.
         The result is calculated as the weighted average of the results of the active key results.
@@ -102,6 +102,8 @@ class OKRObjective(models.Model):
             ValidationError: If an objective with quarterly cadence is linked to an OKR with a different cadence.
         """
         for objective in self:
+            if not objective.okr_id:
+                continue
             okr_cadence = objective.okr_id.cadence
             if objective.cadence == "yearly" and okr_cadence != "yearly":
                 raise ValidationError(

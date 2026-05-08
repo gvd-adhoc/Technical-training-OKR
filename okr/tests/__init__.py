@@ -1,1 +1,1 @@
-from . import test_okr_ciclo_vida
+from . import test_okr_life_cycle

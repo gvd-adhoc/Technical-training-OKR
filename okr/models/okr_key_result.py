@@ -23,16 +23,6 @@ class OKRKeyResult(models.Model):
         default="draft",
     )
 
-    _check_target = models.Constraint(
-        "CHECK(target > 0)",
-        "Target must be positive.",
-    )
-
-    _check_valid_result = models.Constraint(
-        "CHECK(result >= 0)",
-        "Result must be positive.",
-    )
-
     @api.constrains("weight")
     def _check_weight(self):
         """Check that the weight of the key result is within the valid range and that the total weight of key results for an objective does not exceed 100%.
@@ -49,11 +39,13 @@ class OKRKeyResult(models.Model):
             if total_weight > 1:
                 raise ValidationError("Total weight of key results for an objective cannot exceed 100%.")
 
-    @api.constrains("target")
+    @api.constrains("target", "result")
     def _check_target_value(self):
         for kr in self:
             if kr.target <= 0:
-                raise ValidationError("Target must be pookr.cadencesitive.")
+                raise ValidationError("Target must be positive.")
+            if kr.result < 0:
+                raise ValidationError("Result must be positive.")
 
     def set_active(self):
         for kr in self:

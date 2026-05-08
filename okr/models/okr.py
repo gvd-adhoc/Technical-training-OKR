@@ -48,7 +48,7 @@ class Okr(models.Model):
         for okr in self:
             okr.child_count = len(okr.child_ids)
 
-    @api.depends("cadence", "year", "parent_id.start_date", "parent_id.end_date")
+    @api.depends("cadence", "year", "parent_id.year", "parent_id.start_date", "parent_id.end_date")
     def _compute_period(self):
         """Compute the start and end dates based on the cadence."""
         today = fields.Date.today()
@@ -59,7 +59,7 @@ class Okr(models.Model):
         cadence_map = {"q1": 0, "q2": 1, "q3": 2, "q4": 3}
 
         for okr in self:
-            cadence = okr.parent_id.cadence if okr.parent_id else okr.cadence
+            cadence = okr.cadence
             year = okr.parent_id.year if okr.parent_id else okr.year
             if cadence == "yearly":
                 if year:
@@ -189,4 +189,4 @@ class Okr(models.Model):
                     objective.okr_id = False
             if okr.child_ids:
                 for child in okr.child_ids:
-                    child.parent_id = False
+                    child.write({"parent_id": False, "cadence": "yearly"})
